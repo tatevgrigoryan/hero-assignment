@@ -1,0 +1,13 @@
+import { describe, expect, it } from "vitest";
+
+import { cn } from "./cn";
+
+describe("cn", () => {
+  it("merges conditional classes", () => {
+    expect(cn("px-2", false, "py-1")).toBe("px-2 py-1");
+  });
+
+  it("resolves Tailwind conflicts", () => {
+    expect(cn("p-2", "p-4")).toBe("p-4");
+  });
+});
