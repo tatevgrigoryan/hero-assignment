@@ -36,6 +36,12 @@ pnpm lint
 pnpm typecheck
 ```
 
+### Required command
+
+```bash
+turbo run build test lint
+```
+
 ### Tests
 
 ```bash
