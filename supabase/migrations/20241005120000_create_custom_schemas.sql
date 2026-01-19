@@ -67,7 +67,7 @@ create policy "heroos_applications_authenticated_delete" on "HeroOS".application
   to authenticated
   using (true);
 
-create or replace view public.v_heroos__listings_public as
+create or replace view public.v_heroos__listings_public with (security_invoker) as
 select
   id,
   title,
