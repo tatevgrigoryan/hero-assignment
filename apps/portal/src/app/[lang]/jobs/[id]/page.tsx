@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ApplicationForm } from "@/components/application-form";
 import { Button } from "@/components/ui/button";
 import { fetchHeroListings } from "@/lib/supabase/queries";
 import type { Locale } from "@/lib/i18n";
@@ -17,6 +18,7 @@ export type JobDetailPageProps = {
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const { lang, id } = await params;
   const locale = getSafeLocale(lang as Locale);
+  console.log("ENABLE_CANDIDATE_FLOW value:", process.env.ENABLE_CANDIDATE_FLOW);
   const messages = getMessages(locale);
   const listings = await fetchHeroListings(locale);
   const listing = listings.find((item) => item.id === id);
@@ -37,10 +39,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <span className="rounded-full border border-white/20 px-3 py-1">{listing.type}</span>
           </div>
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button>{messages.jobDetail.actions.primary}</Button>
-          <Button variant="ghost">{messages.jobDetail.actions.secondary}</Button>
-        </div>
+
+        {process.env.ENABLE_CANDIDATE_FLOW === 'true' ? (
+           <ApplicationForm listingId={listing.id} />
+        ) : (
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button>{messages.jobDetail.actions.primary}</Button>
+            <Button variant="ghost">{messages.jobDetail.actions.secondary}</Button>
+          </div>
+        )}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-3">
