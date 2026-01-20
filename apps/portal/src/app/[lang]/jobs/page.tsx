@@ -32,7 +32,7 @@ export default async function JobsPage({ params, searchParams }: JobsPageProps) 
           listing.title.toLowerCase().includes(query.toLowerCase())
         )
       : listings;
-      const featuredTitle = filteredListings.length > 0 ? filteredListings[0].title : "";
+      const featuredTitle = filteredListings.length > 0 ? filteredListings[0]?.title : "";
 
   return (
     <div className="space-y-10" data-featured-title={featuredTitle}>
@@ -50,8 +50,8 @@ export default async function JobsPage({ params, searchParams }: JobsPageProps) 
         ))}
       </div>
       {filteredListings.length === 0 && (
-      <div className="text-white mt-6 pt-6 ">Sorry, we couldn’t find any listings matching your search.</div>
-    )}
+        <div className="mt-6 pt-6 text-white">{messages.jobs.noResults}</div>
+      )}
       <div className="grid gap-4">
         {filteredListings.map((listing, index) => (
           <FadeIn key={listing.id} delay={0.05 + index * 0.05}>
