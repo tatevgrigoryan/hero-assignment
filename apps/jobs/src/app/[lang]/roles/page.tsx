@@ -1,10 +1,10 @@
 import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
 import { FadeIn } from "@/components/motion/fade-in";
 import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
-import { fetchRoleListings } from "@/lib/supabase/queries";
-import type { Locale } from "@/lib/i18n";
-import { getMessages, getSafeLocale } from "@/lib/i18n";
+import { en } from "@/locales/en";
+import { nl } from "@/locales/nl";
 
 /**
  * Props for the roles page.
@@ -17,19 +17,61 @@ export type RolesPageProps = {
  * Roles listing page.
  */
 export default async function RolesPage({ params }: RolesPageProps) {
+  const locales = ["en", "nl"] as const;
+  type Locale = (typeof locales)[number];
+  type RoleListing = {
+    id: string;
+    title: string;
+    team: string;
+    location: string;
+    type: string;
+    summary: string;
+  };
+  const messages = {
+    en,
+    nl
+  } satisfies Record<Locale, Record<string, unknown>>;
   const { lang } = await params;
-  const locale = getSafeLocale(lang as Locale);
-  const messages = getMessages(locale);
-  const listings = await fetchRoleListings(locale);
+  const locale =
+    lang && locales.includes(lang as Locale) ? (lang as Locale) : "en";
+  const messagesForLocale = messages[locale];
+  const fallbackListings =
+    messagesForLocale.roles.listings as unknown as RoleListing[];
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_ANON_KEY;
+  const supabase =
+    url && key
+      ? createClient(url, key, {
+          auth: {
+            persistSession: false
+          }
+        })
+      : null;
+  const listings = supabase
+    ? await (async () => {
+        const { data, error } = await supabase
+          .schema("public")
+          .from("role_listings_view")
+          .select("id,title,team,location,type,summary")
+          .order("id");
+        if (error || !data) {
+          return fallbackListings;
+        }
+        return data;
+      })()
+    : fallbackListings;
 
   return (
     <div className="space-y-10">
-      <SectionHeading title={messages.roles.title} subtitle={messages.roles.subtitle} />
+      <SectionHeading
+        title={messagesForLocale.roles.title}
+        subtitle={messagesForLocale.roles.subtitle}
+      />
       <div className="flex flex-wrap gap-3">
         <span className="text-xs uppercase tracking-[0.3em] text-white/60">
           {messages.roles.filtersLabel}
         </span>
-        {messages.roles.filters.map((filter) => (
+        {messagesForLocale.roles.filters.map((filter) => (
           <span key={filter} className="rounded-full border border-white/20 px-3 py-1 text-xs text-white/80">
             {filter}
           </span>
@@ -51,7 +93,7 @@ export default async function RolesPage({ params }: RolesPageProps) {
                 </div>
               </div>
               <Button asChild>
-                <Link href={`/${locale}/roles/${listing.id}`}>{messages.home.heroCta}</Link>
+                <Link href={`/${locale}/roles/${listing.id}`}>{messagesForLocale.home.heroCta}</Link>
               </Button>
             </div>
           </FadeIn>
