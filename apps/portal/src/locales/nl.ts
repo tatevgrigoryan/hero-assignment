@@ -51,6 +51,7 @@ export const nl = {
     subtitle: "Directe impactrollen afgestemd op jouw expertise.",
     filtersLabel: "Rol focus",
     filters: ["Leiderschap", "Operations", "Engineering", "Design"],
+    noResults: "Sorry, we hebben geen vacatures gevonden die overeenkomen met je zoekopdracht.",
     listings: [
       {
         id: "mission-aurora",
